@@ -29,9 +29,7 @@ export const Layout: React.FC<LayoutProps> = ({
       <div className="bg-custom-pattern" />
       <div className="flower-overlay" />
       
-      <header className="flex-shrink-0 flex justify-between items-center w-full px-4 md:px-6 h-14 bg-white/40 glass-header sticky top-0 z-50 border-b border-outline-variant/5">
-        <div className="flex items-center gap-3 md:gap-4">
-          {showBack && (
+    <header className="flex-shrink-0 flex justify-between items-center w-full px-4 md:px-12 lg:px-24 h-14 md:h-16 bg-white/40 glass-header sticky top-0 z-50 border-b border-outline-variant/5">
             <button 
               onClick={onBack}
               className="p-1.5 md:p-2 hover:bg-black/5 rounded-full transition-none"
@@ -67,7 +65,7 @@ export const Layout: React.FC<LayoutProps> = ({
         </button>
       </header>
 
-      <main className="flex-grow px-4 md:px-6 pt-2 md:pt-4 pb-32 max-w-4xl mx-auto w-full relative z-10">
+      <main className="flex-grow px-4 md:px-12 lg:px-24 pt-2 md:pt-6 pb-32 max-w-6xl mx-auto w-full relative z-10">
         {children}
       </main>
 
