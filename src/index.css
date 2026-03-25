@@ -60,7 +60,13 @@ body {
   font-family: "Manrope", sans-serif;
   background-color: var(--color-background);
   color: var(--color-on-surface);
-  scrollbar-gutter: stable;
+  overflow-y: scroll;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none;  /* IE and Edge */
+}
+
+body::-webkit-scrollbar {
+  display: none; /* Chrome, Safari and Opera */
 }
 
 /* Eliminate all transitions and animations for absolute visual stability */

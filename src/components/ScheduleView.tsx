@@ -64,19 +64,30 @@ export const ScheduleView: React.FC<ScheduleViewProps> = ({
 
   // Group events by month and then by date for the list view
   const groupedByMonth = events.reduce((acc, event) => {
-    const dateObj = new Date(event.date);
-    const m = dateObj.getMonth();
-    const y = dateObj.getFullYear();
-    const monthKey = `${months[m]} ${y}`;
+    let monthKey: string;
+    let dateKey: string;
+
+    if (event.date === 'TBD') {
+      monthKey = 'TBD';
+      dateKey = 'TBD';
+    } else {
+      const dateObj = new Date(event.date);
+      const m = dateObj.getMonth();
+      const y = dateObj.getFullYear();
+      monthKey = `${months[m]} ${y}`;
+      dateKey = event.date;
+    }
     
     if (!acc[monthKey]) acc[monthKey] = {};
-    if (!acc[monthKey][event.date]) acc[monthKey][event.date] = [];
-    acc[monthKey][event.date].push(event);
+    if (!acc[monthKey][dateKey]) acc[monthKey][dateKey] = [];
+    acc[monthKey][dateKey].push(event);
     return acc;
   }, {} as Record<string, Record<string, Event[]>>);
 
   // Sort months chronologically
   const sortedMonthKeys = Object.keys(groupedByMonth).sort((a, b) => {
+    if (a === 'TBD') return 1;
+    if (b === 'TBD') return -1;
     const [monthA, yearA] = a.split(' ');
     const [monthB, yearB] = b.split(' ');
     const dateA = new Date(parseInt(yearA), months.indexOf(monthA));
@@ -98,9 +109,9 @@ export const ScheduleView: React.FC<ScheduleViewProps> = ({
   return (
     <div>
       {/* Header Section with Fixed Height to prevent layout shifts */}
-      <section className="relative h-[120px] md:h-[140px] mb-6 md:mb-8 flex flex-col items-center justify-start text-center">
+      <section className="relative h-[100px] md:h-[120px] mb-4 md:mb-6 flex flex-col items-center justify-start text-center">
         {/* Row 1: View Toggle and Add Button */}
-        <div className="flex items-center justify-center gap-3 w-full h-12 z-10">
+        <div className="flex items-center justify-center gap-3 w-full h-10 md:h-12 z-10">
           <div className="bg-surface-container-low/60 backdrop-blur-sm p-1 rounded-xl flex border border-white/20 shadow-sm h-full transition-none">
             <button 
               onClick={() => setViewMode('list')}
@@ -132,7 +143,7 @@ export const ScheduleView: React.FC<ScheduleViewProps> = ({
         </div>
 
         {/* Row 2: Month Selector - Absolute positioned to avoid layout shift, now visible in both views for alignment */}
-        <div className="absolute top-16 md:top-20 left-1/2 -translate-x-1/2 flex flex-col items-center w-full transition-none opacity-100">
+        <div className="absolute top-14 md:top-16 left-1/2 -translate-x-1/2 flex flex-col items-center w-full transition-none opacity-100">
           <div className="flex items-center justify-between w-full min-w-[240px] max-w-[280px] bg-surface-container-low/40 rounded-xl p-1.5 border border-white/10 shadow-sm transition-none">
             <button onClick={handlePrevMonth} className="p-2 hover:bg-black/5 rounded-lg transition-none">
               <ChevronLeft className="w-5 h-5 text-primary transition-none" />
@@ -153,124 +164,111 @@ export const ScheduleView: React.FC<ScheduleViewProps> = ({
         </div>
       </section>
 
-      {viewMode === 'list' ? (
+      {events.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-8 md:py-12 text-center transition-none">
+          <div className="bg-white/40 backdrop-blur-xl px-6 py-4 md:px-8 md:py-6 rounded-2xl border border-white/50 shadow-sm transition-none w-full max-w-[320px]">
+            <p className="text-base md:text-lg font-bold text-primary tracking-tight transition-none">
+              Add events or join a team
+            </p>
+          </div>
+        </div>
+      ) : viewMode === 'list' ? (
         <div className="space-y-6 md:space-y-8">
-          {events.length === 0 ? (
-            <div className="flex flex-col items-center justify-center min-h-[40vh] text-center transition-none">
-              <div className="bg-white/30 backdrop-blur-md px-8 py-6 rounded-[2rem] border border-white/40 shadow-[0_8px_32px_rgba(0,0,0,0.02)] transition-none">
-                <p className="text-xl md:text-2xl font-bold text-primary tracking-tight transition-none">
-                  Add events or join a team
-                </p>
-              </div>
-            </div>
-          ) : (
-            sortedMonthKeys.map((monthKey) => (
-              <div key={monthKey} id={`month-${monthKey.replace(' ', '-')}`} className="space-y-4 md:space-y-6 scroll-mt-24">
-                {(Object.values(groupedByMonth[monthKey]).flat() as Event[]).map((event) => (
-                  <div 
-                    key={event.id}
-                    onClick={() => onEventClick(event)}
-                    className="group relative bg-surface-container-lowest/90 backdrop-blur-sm p-4 md:p-6 rounded-xl flex flex-col md:flex-row gap-3 md:gap-6 hover:bg-surface shadow-sm border border-white/40 cursor-pointer transition-none"
-                  >
-                    <div className="w-full md:w-32 flex-shrink-0 flex md:flex-col items-baseline md:items-start gap-1 md:gap-0 transition-none">
-                      <p className="text-[10px] font-black uppercase text-primary/40 tracking-widest leading-none mb-1">
-                        {event.date.split(' ')[0].substring(0, 3)} {event.date.split(' ')[1].replace(',', '')}
-                      </p>
-                      <p className="text-sm md:text-base font-bold text-primary transition-none">{event.time}</p>
-                    </div>
-                    <div className="flex-grow space-y-2 md:space-y-3 transition-none">
-                          <div className="flex justify-between items-start transition-none">
-                            <h4 className="text-lg md:text-xl font-bold leading-tight group-hover:text-primary transition-none">{event.title}</h4>
-                            <MoreHorizontal className="w-4 h-4 md:w-5 md:h-5 text-on-surface-variant/30 group-hover:text-primary transition-none" />
+          {sortedMonthKeys.map((monthKey) => (
+            <div key={monthKey} id={`month-${monthKey.replace(' ', '-')}`} className="space-y-4 md:space-y-6 scroll-mt-24">
+              {(Object.values(groupedByMonth[monthKey]).flat() as Event[]).map((event) => (
+                <div 
+                  key={event.id}
+                  onClick={() => onEventClick(event)}
+                  className="group relative bg-surface-container-lowest/90 backdrop-blur-sm p-4 md:p-6 rounded-xl flex flex-col md:flex-row gap-3 md:gap-6 hover:bg-surface shadow-sm border border-white/40 cursor-pointer transition-none"
+                >
+                  <div className="w-full md:w-32 flex-shrink-0 flex md:flex-col items-baseline md:items-start gap-1 md:gap-0 transition-none">
+                    <p className="text-[10px] font-black uppercase text-primary/40 tracking-widest leading-none mb-1">
+                      {event.date === 'TBD' ? 'TBD' : `${event.date.split(' ')[0].substring(0, 3)} ${event.date.split(' ')[1].replace(',', '')}`}
+                    </p>
+                    <p className="text-sm md:text-base font-bold text-primary transition-none">{event.time}</p>
+                  </div>
+                  <div className="flex-grow space-y-2 md:space-y-3 transition-none">
+                        <div className="flex justify-between items-start transition-none">
+                          <h4 className="text-lg md:text-xl font-bold leading-tight group-hover:text-primary transition-none">{event.title}</h4>
+                          <MoreHorizontal className="w-4 h-4 md:w-5 md:h-5 text-on-surface-variant/30 group-hover:text-primary transition-none" />
+                        </div>
+                        
+                        {event.image && (
+                          <div className="aspect-[16/9] md:aspect-[16/6] w-full rounded-xl overflow-hidden mb-1 md:mb-2 transition-none">
+                            <img 
+                              alt={event.title} 
+                              className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-none" 
+                              src={event.image}
+                              referrerPolicy="no-referrer"
+                            />
                           </div>
-                          
-                          {event.image && (
-                            <div className="aspect-[16/9] md:aspect-[16/6] w-full rounded-xl overflow-hidden mb-1 md:mb-2 transition-none">
-                              <img 
-                                alt={event.title} 
-                                className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-none" 
-                                src={event.image}
-                                referrerPolicy="no-referrer"
-                              />
-                            </div>
-                          )}
-                          
-                          <p className="text-on-surface-variant text-sm leading-relaxed max-w-md line-clamp-2">
-                            {event.description}
-                          </p>
-                          
-                          <div className="flex flex-wrap gap-2 pt-2">
-                            {event.collaborators.map((collab) => (
-                              <div key={collab.id} className="flex items-center gap-1.5 bg-secondary-container/50 px-3 py-1 rounded-full">
-                                <div className="w-5 h-5 rounded-full bg-slate-300 overflow-hidden border border-white/50">
-                                  <img alt={collab.name} className="w-full h-full object-cover" src={collab.avatar} referrerPolicy="no-referrer" />
-                                </div>
-                                <span className="text-[11px] font-bold text-on-secondary-container">{collab.name}</span>
+                        )}
+                        
+                        <p className="text-on-surface-variant text-sm leading-relaxed max-w-md line-clamp-2">
+                          {event.description}
+                        </p>
+                        
+                        <div className="flex flex-wrap gap-2 pt-2">
+                          {event.collaborators.map((collab) => (
+                            <div key={collab.id} className="flex items-center gap-1.5 bg-secondary-container/50 px-3 py-1 rounded-full">
+                              <div className="w-5 h-5 rounded-full bg-slate-300 overflow-hidden border border-white/50">
+                                <img alt={collab.name} className="w-full h-full object-cover" src={collab.avatar} referrerPolicy="no-referrer" />
                               </div>
-                            ))}
-                            <div className="flex items-center gap-1.5 bg-surface-container-high px-3 py-1 rounded-full">
-                              <span className="text-[11px] font-bold text-on-surface-variant uppercase tracking-wider">{event.department}</span>
+                              <span className="text-[11px] font-bold text-on-secondary-container">{collab.name}</span>
                             </div>
+                          ))}
+                          <div className="flex items-center gap-1.5 bg-surface-container-high px-3 py-1 rounded-full">
+                            <span className="text-[11px] font-bold text-on-surface-variant uppercase tracking-wider">{event.department}</span>
                           </div>
                         </div>
                       </div>
+                    </div>
+                  ))}
+                </div>
+              ))
+          }
+        </div>
+      ) : (
+        <div className="bg-surface-container-lowest/90 backdrop-blur-sm rounded-xl p-2 md:p-4 border border-white/40 shadow-sm overflow-hidden">
+          <div className="grid grid-cols-7 gap-1 mb-2">
+            {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
+              <div key={day} className="text-center text-[9px] md:text-[10px] font-bold text-on-surface-variant uppercase py-1">
+                {day}
+              </div>
+            ))}
+          </div>
+          <div className="grid grid-cols-7 gap-1">
+            {Array.from({ length: firstDayOfMonth }).map((_, i) => (
+              <div key={`empty-${i}`} className="aspect-[4/3] md:aspect-square" />
+            ))}
+            {days.map(day => {
+              const dayEvents = getEventsForDay(day);
+              return (
+                <div 
+                  key={day} 
+                  className={cn(
+                    "aspect-[4/3] md:aspect-square rounded-lg p-1 border border-outline-variant/5 flex flex-col gap-0.5 hover:bg-primary/5 cursor-default transition-none",
+                    dayEvents.length > 0 ? "bg-primary/5" : "bg-transparent"
+                  )}
+                >
+                  <span className="text-[9px] md:text-[10px] font-bold text-on-surface-variant transition-none">{day}</span>
+                  <div className="flex flex-wrap gap-0.5 overflow-hidden transition-none">
+                    {dayEvents.map(event => (
+                      <div 
+                        key={event.id}
+                        onClick={() => onEventClick(event)}
+                        className="w-1.5 h-1.5 md:w-2 md:h-2 rounded-full bg-primary cursor-pointer transition-none shadow-sm"
+                        title={event.title}
+                      />
                     ))}
-                  </div>
-                ))
-              )}
-            </div>
-          ) : (
-            <div className="bg-surface-container-lowest/90 backdrop-blur-sm rounded-xl p-4 md:p-6 border border-white/40 shadow-sm">
-              {events.length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-20 text-center transition-none">
-                  <div className="bg-white/30 backdrop-blur-md px-8 py-6 rounded-[2rem] border border-white/40 shadow-[0_8px_32px_rgba(0,0,0,0.02)] transition-none">
-                    <p className="text-xl md:text-2xl font-bold text-primary tracking-tight transition-none">
-                      Add events or join a team
-                    </p>
                   </div>
                 </div>
-              ) : (
-                <>
-                  <div className="grid grid-cols-7 gap-1 md:gap-2 mb-4">
-                    {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
-                      <div key={day} className="text-center text-[10px] md:text-xs font-bold text-on-surface-variant uppercase py-2">
-                        {day}
-                      </div>
-                    ))}
-                  </div>
-                  <div className="grid grid-cols-7 gap-1 md:gap-2">
-                    {Array.from({ length: firstDayOfMonth }).map((_, i) => (
-                      <div key={`empty-${i}`} className="aspect-square" />
-                    ))}
-                    {days.map(day => {
-                      const dayEvents = getEventsForDay(day);
-                      return (
-                        <div 
-                          key={day} 
-                          className={cn(
-                            "aspect-square rounded-xl p-1 md:p-2 border border-outline-variant/10 flex flex-col gap-1 hover:bg-primary/5 cursor-default transition-none",
-                            dayEvents.length > 0 ? "bg-primary/5" : "bg-transparent"
-                          )}
-                        >
-                          <span className="text-[10px] md:text-xs font-bold text-on-surface-variant transition-none">{day}</span>
-                          <div className="flex flex-col gap-0.5 overflow-hidden transition-none">
-                            {dayEvents.map(event => (
-                              <div 
-                                key={event.id}
-                                onClick={() => onEventClick(event)}
-                                className="w-full h-1 md:h-1.5 rounded-full bg-primary cursor-pointer transition-none"
-                                title={event.title}
-                              />
-                            ))}
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </>
-              )}
-            </div>
-          )}
+              );
+            })}
+          </div>
+        </div>
+      )}
     </div>
   );
 };

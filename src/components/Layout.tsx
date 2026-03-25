@@ -11,6 +11,7 @@ interface LayoutProps {
   title: string;
   showBack?: boolean;
   onBack?: () => void;
+  profilePic: string;
 }
 
 export const Layout: React.FC<LayoutProps> = ({
@@ -19,14 +20,16 @@ export const Layout: React.FC<LayoutProps> = ({
   onViewChange,
   title,
   showBack,
-  onBack
+  onBack,
+  profilePic
 }) => {
+
   return (
     <div className="min-h-screen flex flex-col relative overflow-x-hidden">
       <div className="bg-custom-pattern" />
       <div className="flower-overlay" />
       
-      <header className="flex justify-between items-center w-full px-4 md:px-6 h-14 bg-white/40 glass-header sticky top-0 z-50 border-b border-outline-variant/5">
+      <header className="flex-shrink-0 flex justify-between items-center w-full px-4 md:px-6 h-14 bg-white/40 glass-header sticky top-0 z-50 border-b border-outline-variant/5">
         <div className="flex items-center gap-3 md:gap-4">
           {showBack && (
             <button 
@@ -40,16 +43,31 @@ export const Layout: React.FC<LayoutProps> = ({
               )}
             </button>
           )}
-          <div className="flex items-center gap-2">
+          <button 
+            onClick={() => onViewChange('schedule')}
+            className="flex items-center gap-2 hover:opacity-80 transition-none"
+          >
             <Flower2 className="w-5 h-5 text-primary transition-none" />
             <h1 className="text-lg font-extrabold text-primary-container tracking-tight">
               {title}
             </h1>
-          </div>
+          </button>
         </div>
+        
+        <button 
+          onClick={() => onViewChange('profile')}
+          className="w-8 h-8 md:w-9 md:h-9 rounded-full overflow-hidden border-2 border-white/50 shadow-sm hover:opacity-90 transition-none"
+        >
+          <img 
+            src={profilePic} 
+            alt="Profile" 
+            className="w-full h-full object-cover"
+            referrerPolicy="no-referrer"
+          />
+        </button>
       </header>
 
-      <main className="flex-grow px-4 md:px-6 pt-4 md:pt-8 pb-32 max-w-4xl mx-auto w-full relative z-10">
+      <main className="flex-grow px-4 md:px-6 pt-2 md:pt-4 pb-32 max-w-4xl mx-auto w-full relative z-10">
         {children}
       </main>
 
