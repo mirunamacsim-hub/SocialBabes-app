@@ -1,0 +1,60 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Install Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build
+        run: npm run build
+
+      - name: Deploy
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dist
+```
+
+---
+
+## STEP 5 — Save it
+1. Click the green **Commit changes** button top right
+2. Leave everything as is
+3. Click **Commit changes** again
+
+---
+
+## STEP 6 — Watch it build
+1. Click the **Actions** tab at the top of your repo
+2. You'll see a workflow running with a yellow circle ⏳
+3. Wait for it to turn green ✅
+
+---
+
+## STEP 7 — Update GitHub Pages branch
+Once green:
+1. Click **Settings** tab
+2. Left sidebar → **Pages**
+3. Change branch from `main` to `gh-pages`
+4. Click **Save**
+
+---
+
+## Done! Live at:
+```
+https://mirunamacsim-hub.github.io/socialbabes/
