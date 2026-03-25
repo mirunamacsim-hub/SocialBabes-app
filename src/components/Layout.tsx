@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Calendar as CalendarIcon, User, ArrowLeft, Menu, X, Flower2 } from 'lucide-react';
+import { Calendar as CalendarIcon, User, ArrowLeft, X, Flower2 } from 'lucide-react';
 import { View } from '../types';
 import { cn } from '../lib/utils';
 
@@ -23,13 +23,14 @@ export const Layout: React.FC<LayoutProps> = ({
   onBack,
   profilePic
 }) => {
-
   return (
     <div className="min-h-screen flex flex-col relative overflow-x-hidden">
       <div className="bg-custom-pattern" />
       <div className="flower-overlay" />
       
-    <header className="flex-shrink-0 flex justify-between items-center w-full px-4 md:px-12 lg:px-24 h-14 md:h-16 bg-white/40 glass-header sticky top-0 z-50 border-b border-outline-variant/5">
+      <header className="flex-shrink-0 flex justify-between items-center w-full px-4 md:px-12 lg:px-24 h-14 md:h-16 bg-white/40 glass-header sticky top-0 z-50 border-b border-outline-variant/5">
+        <div className="flex items-center gap-3 md:gap-4">
+          {showBack && (
             <button 
               onClick={onBack}
               className="p-1.5 md:p-2 hover:bg-black/5 rounded-full transition-none"
@@ -83,7 +84,6 @@ export const Layout: React.FC<LayoutProps> = ({
           >
             <CalendarIcon className={cn("w-6 h-6 transition-none", currentView === 'schedule' && "fill-current")} />
           </button>
-
           <button
             onClick={() => onViewChange('profile')}
             className={cn(
