@@ -161,6 +161,8 @@ case 'profile':
         showBack={currentView === 'detail' || currentView === 'create'}
         onBack={handleBack}
         profilePic={profilePic}
+        onLogout={handleLogout}
+        onDeleteAccount={handleDeleteAccount}
       >
         {renderContent()}
       </Layout>
