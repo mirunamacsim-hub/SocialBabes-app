@@ -27,6 +27,7 @@ export const Layout: React.FC<LayoutProps> = ({
     <div className="min-h-screen flex flex-col relative overflow-x-hidden">
       <div className="bg-custom-pattern" />
       <div className="flower-overlay" />
+<div className="fixed inset-0 z-0 bg-white/40 pointer-events-none" />
       
       <header className="flex-shrink-0 flex justify-between items-center w-full px-4 md:px-12 lg:px-24 h-14 md:h-16 bg-white/40 glass-header sticky top-0 z-50 border-b border-outline-variant/5">
         <div className="flex items-center gap-3 md:gap-4">
