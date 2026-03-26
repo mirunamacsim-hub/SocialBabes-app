@@ -4,9 +4,10 @@ import { UserPlus, Users, Bell, Lock, ChevronRight, Edit2 } from 'lucide-react';
 interface ProfileViewProps {
   profilePic: string;
   onUpdateProfilePic: (newPic: string) => void;
+  userName: string;
 }
 
-export const ProfileView: React.FC<ProfileViewProps> = ({ profilePic, onUpdateProfilePic }) => {
+export const ProfileView: React.FC<ProfileViewProps> = ({ profilePic, onUpdateProfilePic, userName }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -53,7 +54,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ profilePic, onUpdatePr
             />
           </div>
           <div className="text-center md:text-left">
-            <h2 className="text-2xl md:text-3xl font-extrabold text-primary tracking-tight">Miruna Macsim</h2>
+            <h2 className="text-2xl md:text-3xl font-extrabold text-primary tracking-tight">{userName || 'Your Name'}</h2>
           </div>
         </div>
       </section>
