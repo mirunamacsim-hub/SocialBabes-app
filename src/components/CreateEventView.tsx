@@ -1,8 +1,7 @@
 import React, { useState, useRef } from 'react';
-import { Calendar, Clock, MapPin, ChevronDown, UserPlus, X, Sparkles, Upload, Loader2 } from 'lucide-react';
+import { Calendar, Clock, MapPin, ChevronDown, UserPlus, X, Sparkles, Upload, Loader2 } 
 import { Event } from '../types';
 import { COLLABORATORS } from '../constants';
-import { GoogleGenAI } from "@google/genai";
 
 interface CreateEventViewProps {
   onCancel: () => void;
@@ -33,7 +32,6 @@ export const CreateEventView: React.FC<CreateEventViewProps> = ({
   const [department, setDepartment] = useState(initialEvent?.department || 'ASSIST');
   const [location, setLocation] = useState(initialEvent?.location === 'TBD' ? '' : initialEvent?.location || '');
   const [image, setImage] = useState<string | null>(initialEvent?.image || null);
-  const [isGenerating, setIsGenerating] = useState(false);
   const [isDateTBD, setIsDateTBD] = useState(initialEvent?.date === 'TBD');
   const [isTimeTBD, setIsTimeTBD] = useState(initialEvent?.time === 'TBD');
   const [selectedCollaborators, setSelectedCollaborators] = useState<any[]>(initialEvent?.collaborators || []);
@@ -81,33 +79,6 @@ export const CreateEventView: React.FC<CreateEventViewProps> = ({
     );
   };
 
-  const handleGenerateAI = async () => {
-    if (!title) return;
-    setIsGenerating(true);
-    try {
-      const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
-      const response = await ai.models.generateContent({
-        model: 'gemini-2.5-flash-image',
-        contents: {
-          parts: [{
-            text: `A high-quality, professional, and aesthetically pleasing image representing the event titled: "${title}". Style: modern, clean, botanical accents, professional photography. IMPORTANT: The image must NOT contain any text, writing, letters, or numbers.`,
-          }],
-        },
-        config: { imageConfig: { aspectRatio: "16:9" } },
-      });
-
-      for (const part of response.candidates?.[0]?.content?.parts || []) {
-        if (part.inlineData) {
-          setImage(`data:image/png;base64,${part.inlineData.data}`);
-          break;
-        }
-      }
-    } catch (error) {
-      console.error('Error generating image:', error);
-    } finally {
-      setIsGenerating(false);
-    }
-  };
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -155,47 +126,36 @@ export const CreateEventView: React.FC<CreateEventViewProps> = ({
         </div>
 
         {/* Event Visual — just two buttons */}
-        <div className="flex flex-col gap-2">
-          <label className="text-[10px] md:text-[11px] font-bold uppercase tracking-wider text-on-surface-variant px-1">Event Visual</label>
-          <div className="flex items-center gap-3 flex-wrap">
-            <button
-              type="button"
-              onClick={handleGenerateAI}
-              disabled={!title || isGenerating}
-              className="flex items-center gap-2 px-4 py-2.5 bg-primary text-white rounded-xl text-xs font-bold shadow-lg shadow-primary/20 hover:opacity-90 disabled:opacity-50"
-            >
-              {isGenerating ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5" />}
-              AI Generate
-            </button>
-            <button
-              type="button"
-              onClick={() => fileInputRef.current?.click()}
-              className="flex items-center gap-2 px-4 py-2.5 bg-[#ece5db] text-primary rounded-xl text-xs font-bold hover:bg-[#e0d8cc]"
-            >
-              <Upload className="w-3.5 h-3.5" />
-              Upload Image
-            </button>
-            {image && (
-              <button
-                type="button"
-                onClick={() => setImage(null)}
-                className="flex items-center gap-2 px-4 py-2.5 bg-red-50 text-red-500 rounded-xl text-xs font-bold hover:bg-red-100"
-              >
-                <X className="w-3.5 h-3.5" />
-                Remove
-              </button>
-            )}
-            {!title && (
-              <p className="text-[10px] text-on-surface-variant font-medium w-full px-1">Enter a title first to use AI generation</p>
-            )}
-          </div>
-          {image && (
-            <div className="relative aspect-[3/1] w-full rounded-xl overflow-hidden mt-1">
-              <img src={image} alt="Preview" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
-            </div>
-          )}
-          <input type="file" ref={fileInputRef} onChange={handleFileUpload} accept="image/*" className="hidden" />
-        </div>
+      {/* Event Visual — upload only */}
+<div className="flex flex-col gap-2">
+  <label className="text-[10px] md:text-[11px] font-bold uppercase tracking-wider text-on-surface-variant px-1">Event Visual</label>
+  <div className="flex items-center gap-3">
+    <button
+      type="button"
+      onClick={() => fileInputRef.current?.click()}
+      className="flex items-center gap-2 px-4 py-2.5 bg-[#ece5db] text-primary rounded-xl text-xs font-bold hover:bg-[#e0d8cc]"
+    >
+      <Upload className="w-3.5 h-3.5" />
+      Upload Image
+    </button>
+    {image && (
+      <button
+        type="button"
+        onClick={() => setImage(null)}
+        className="flex items-center gap-2 px-4 py-2.5 bg-red-50 text-red-500 rounded-xl text-xs font-bold hover:bg-red-100"
+      >
+        <X className="w-3.5 h-3.5" />
+        Remove
+      </button>
+    )}
+  </div>
+  {image && (
+    <div className="relative aspect-[3/1] w-full rounded-xl overflow-hidden mt-1">
+      <img src={image} alt="Preview" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+    </div>
+  )}
+  <input type="file" ref={fileInputRef} onChange={handleFileUpload} accept="image/*" className="hidden" />
+</div>
 
         {/* Date + Time */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-6">
