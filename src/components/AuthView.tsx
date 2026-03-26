@@ -59,7 +59,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin, profilePic }) => {
                   </div>
                   <input
                     type="text"
-                    placeholder="Miruna"
+                    placeholder="First Name"
                     value={firstName}
                     onChange={(e) => setFirstName(e.target.value)}
                     className="w-full bg-[#EAE9E5]/50 border-none rounded-xl py-4 pl-10 pr-3 text-sm text-[#1C1C19] placeholder:text-[#1C1C19]/30 outline-none focus:ring-2 focus:ring-[#7A002B]/20 transition-none"
@@ -74,7 +74,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin, profilePic }) => {
                 <div className="relative">
                   <input
                     type="text"
-                    placeholder="Macsim"
+                    placeholder="Last Name"
                     value={lastName}
                     onChange={(e) => setLastName(e.target.value)}
                     className="w-full bg-[#EAE9E5]/50 border-none rounded-xl py-4 px-3 text-sm text-[#1C1C19] placeholder:text-[#1C1C19]/30 outline-none focus:ring-2 focus:ring-[#7A002B]/20 transition-none"
