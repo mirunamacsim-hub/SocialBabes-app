@@ -1,6 +1,5 @@
-import React from 'react';
-import { motion, AnimatePresence } from 'motion/react';
-import { Calendar as CalendarIcon, User, ArrowLeft, X, Flower2 } from 'lucide-react';
+import React, { useState, useRef, useEffect } from 'react';
+import { Calendar as CalendarIcon, User, ArrowLeft, X, Flower2, LogOut, Trash2 } from 'lucide-react';
 import { View } from '../types';
 import { cn } from '../lib/utils';
 
@@ -12,6 +11,8 @@ interface LayoutProps {
   showBack?: boolean;
   onBack?: () => void;
   profilePic: string;
+  onLogout: () => void;
+  onDeleteAccount: () => void;
 }
 
 export const Layout: React.FC<LayoutProps> = ({
@@ -21,18 +22,34 @@ export const Layout: React.FC<LayoutProps> = ({
   title,
   showBack,
   onBack,
-  profilePic
+  profilePic,
+  onLogout,
+  onDeleteAccount,
 }) => {
+  const [showDropdown, setShowDropdown] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setShowDropdown(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
   return (
     <div className="min-h-screen flex flex-col relative overflow-x-hidden">
       <div className="bg-custom-pattern" />
       <div className="flower-overlay" />
-<div className="fixed inset-0 z-0 bg-white/40 pointer-events-none" />
-      
+      <div className="fixed inset-0 z-0 bg-white/70 pointer-events-none" />
+
       <header className="flex-shrink-0 flex justify-between items-center w-full px-4 md:px-12 lg:px-24 h-14 md:h-16 bg-white/40 glass-header sticky top-0 z-50 border-b border-outline-variant/5">
         <div className="flex items-center gap-3 md:gap-4">
           {showBack && (
-            <button 
+            <button
               onClick={onBack}
               className="p-1.5 md:p-2 hover:bg-black/5 rounded-full transition-none"
             >
@@ -43,7 +60,7 @@ export const Layout: React.FC<LayoutProps> = ({
               )}
             </button>
           )}
-          <button 
+          <button
             onClick={() => onViewChange('schedule')}
             className="flex items-center gap-2 hover:opacity-80 transition-none"
           >
@@ -53,18 +70,57 @@ export const Layout: React.FC<LayoutProps> = ({
             </h1>
           </button>
         </div>
-        
-        <button 
-          onClick={() => onViewChange('profile')}
-          className="w-8 h-8 md:w-9 md:h-9 rounded-full overflow-hidden border-2 border-white/50 shadow-sm hover:opacity-90 transition-none"
-        >
-          <img 
-            src={profilePic} 
-            alt="Profile" 
-            className="w-full h-full object-cover"
-            referrerPolicy="no-referrer"
-          />
-        </button>
+
+        {/* Profile picture + dropdown */}
+        <div className="relative" ref={dropdownRef}>
+          <button
+            onClick={() => setShowDropdown(!showDropdown)}
+            className="w-8 h-8 md:w-9 md:h-9 rounded-full overflow-hidden border-2 border-white/50 shadow-sm hover:opacity-90 transition-none"
+          >
+            <img
+              src={profilePic}
+              alt="Profile"
+              className="w-full h-full object-cover"
+              referrerPolicy="no-referrer"
+            />
+          </button>
+
+          {showDropdown && (
+            <div className="absolute right-0 top-12 w-48 bg-white/90 backdrop-blur-md rounded-2xl shadow-xl border border-white/40 z-[200] overflow-hidden">
+              <button
+                onClick={() => {
+                  setShowDropdown(false);
+                  onViewChange('profile');
+                }}
+                className="w-full flex items-center gap-3 px-4 py-3 text-sm font-semibold text-on-surface hover:bg-black/5 transition-none"
+              >
+                <User className="w-4 h-4 text-primary" />
+                My Profile
+              </button>
+              <button
+                onClick={() => {
+                  setShowDropdown(false);
+                  onLogout();
+                }}
+                className="w-full flex items-center gap-3 px-4 py-3 text-sm font-semibold text-on-surface hover:bg-black/5 transition-none"
+              >
+                <LogOut className="w-4 h-4 text-on-surface-variant" />
+                Log Out
+              </button>
+              <div className="h-px bg-black/5 mx-3" />
+              <button
+                onClick={() => {
+                  setShowDropdown(false);
+                  setShowDeleteConfirm(true);
+                }}
+                className="w-full flex items-center gap-3 px-4 py-3 text-sm font-semibold text-red-500 hover:bg-red-50/50 transition-none"
+              >
+                <Trash2 className="w-4 h-4" />
+                Delete Account
+              </button>
+            </div>
+          )}
+        </div>
       </header>
 
       <main className="flex-grow px-4 md:px-12 lg:px-24 pt-2 md:pt-6 pb-32 max-w-6xl mx-auto w-full relative z-10">
@@ -73,9 +129,10 @@ export const Layout: React.FC<LayoutProps> = ({
 
       {currentView !== 'detail' && currentView !== 'create' && (
         <nav className="fixed bottom-4 left-1/2 -translate-x-1/2 w-48 z-50 flex justify-around items-center px-1 py-1 bg-background/20 backdrop-blur-md shadow-[0_4px_20px_rgba(28,28,25,0.05)] rounded-full border border-white/20">
-          <div className="absolute inset-y-1 left-1 w-[calc(50%-4px)] bg-secondary-container/60 rounded-full transition-none" 
-               style={{ transform: `translateX(${currentView === 'profile' ? '100%' : '0%'})` }} />
-          
+          <div
+            className="absolute inset-y-1 left-1 w-[calc(50%-4px)] bg-secondary-container/60 rounded-full transition-none"
+            style={{ transform: `translateX(${currentView === 'profile' ? '100%' : '0%'})` }}
+          />
           <button
             onClick={() => onViewChange('schedule')}
             className={cn(
@@ -95,6 +152,34 @@ export const Layout: React.FC<LayoutProps> = ({
             <User className={cn("w-6 h-6 transition-none", currentView === 'profile' && "fill-current")} />
           </button>
         </nav>
+      )}
+
+      {/* Delete Account Confirmation Modal */}
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+          <div
+            className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+            onClick={() => setShowDeleteConfirm(false)}
+          />
+          <div className="relative bg-white/90 backdrop-blur-xl p-6 md:p-8 rounded-2xl border border-white/50 shadow-2xl w-full max-w-sm text-center">
+            <h3 className="text-xl font-bold text-primary mb-2">Delete Account?</h3>
+            <p className="text-sm text-on-surface-variant mb-8">This will erase all your data permanently. This cannot be undone.</p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowDeleteConfirm(false)}
+                className="flex-1 px-4 py-3 rounded-xl bg-surface-container-high text-on-surface font-bold text-sm"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={onDeleteAccount}
+                className="flex-1 px-4 py-3 rounded-xl bg-red-500 text-white font-bold text-sm shadow-lg shadow-red-500/20"
+              >
+                Yes, Delete
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
