@@ -33,6 +33,16 @@ export default function App() {
     setProfilePic(newPic);
     localStorage.setItem('socialbabes_profile_pic', newPic);
   };
+  
+  const handleLogout = () => {
+    localStorage.removeItem('socialbabes_auth');
+    setIsAuthenticated(false);
+  };
+
+  const handleDeleteAccount = () => {
+    localStorage.clear();
+    setIsAuthenticated(false);
+  };
 
 const handleLogin = (stayLoggedIn: boolean, name: string) => {
     setIsAuthenticated(true);
