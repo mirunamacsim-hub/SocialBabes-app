@@ -13,6 +13,9 @@ export default function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(() => {
     return localStorage.getItem('socialbabes_auth') === 'true';
   });
+  const [userName, setUserName] = useState(() => {
+    return localStorage.getItem('socialbabes_name') || '';
+  });
   const [currentView, setCurrentView] = useState<View>('schedule');
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
   const [editingEvent, setEditingEvent] = useState<Event | null>(null);
@@ -31,8 +34,10 @@ export default function App() {
     localStorage.setItem('socialbabes_profile_pic', newPic);
   };
 
-  const handleLogin = (stayLoggedIn: boolean) => {
+const handleLogin = (stayLoggedIn: boolean, name: string) => {
     setIsAuthenticated(true);
+    setUserName(name);
+    localStorage.setItem('socialbabes_name', name);
     if (stayLoggedIn) {
       localStorage.setItem('socialbabes_auth', 'true');
     }
@@ -120,8 +125,8 @@ export default function App() {
             onDelete={() => setShowDeleteConfirm(true)}
           />
         );
-      case 'profile':
-        return <ProfileView profilePic={profilePic} onUpdateProfilePic={handleUpdateProfilePic} />;
+case 'profile':
+        return <ProfileView profilePic={profilePic} onUpdateProfilePic={handleUpdateProfilePic} userName={userName} />;
       default:
         return null;
     }
