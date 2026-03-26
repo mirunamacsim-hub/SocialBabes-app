@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { Calendar, Clock, MapPin, ChevronDown, UserPlus, X, Sparkles, Upload, Loader2 } 
+import { Calendar, Clock, MapPin, ChevronDown, UserPlus, X, Upload } from 'lucide-react';
 import { Event } from '../types';
 import { COLLABORATORS } from '../constants';
 
